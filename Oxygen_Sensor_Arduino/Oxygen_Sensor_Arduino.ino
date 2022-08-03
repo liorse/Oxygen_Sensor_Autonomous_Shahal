@@ -1,22 +1,20 @@
-/**************************************************************************
- This is an example for our Monochrome OLEDs based on SSD1306 drivers
+/* Oxygen sensor arduino program
 
- Pick one up today in the adafruit shop!
- ------> http://www.adafruit.com/category/63_98
+1. Read from oxygen sensor model number: AA428-210 O2 CiTiceL (0mV for 0% oxygen, around 9-13mV for 21% Oxygen)
+  a. Reading is done through i2c protocol (address 0x48) from ads1115 for two channels.
+  two oxygen sensors are connected at once. Data is sent continously at 64 samples per second
+  a1. Every time that a sample is ready a trigger line is triggered and the ads1115 is read
+  b. I am switching the reading for the two channels
+  c. programmalable gain amplifier is set to 16 (giving maximum range of plus minus 0.265 mV)
+  d. I will read the raw values and calibrate towards the raw values (adc counts). I can also convert the values to mV.
 
- This example is for a 128x32 pixel display using I2C to communicate
- 3 pins are required to interface (two I2C and one reset).
+  I am using ADS1115_WE by Wolfgan Ewald version 1.4.1
+  Arduino IDE 2.0.0-rc9.1
 
- Adafruit invests time and resources providing this open
- source code, please support Adafruit and open-source
- hardware by purchasing products from Adafruit!
+2. Display
+3. Modbus
 
- Written by Limor Fried/Ladyada for Adafruit Industries,
- with contributions from the open source community.
- BSD license, check license.txt for more information
- All text above, and the splash screen below must be
- included in any redistribution.
- **************************************************************************/
+*/
 
 #include <SPI.h>
 #include <Wire.h>
