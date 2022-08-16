@@ -20,8 +20,12 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <AltSoftSerial.h>
+//#include <AltSoftSerial.h>
 #include<ADS1115_WE.h> 
+
+
+//#include <ArduinoRS485.h> // ArduinoModbus depends on the ArduinoRS485 library
+//#include <ArduinoModbus.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -32,12 +36,14 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define I2C_ADDRESS 0x48
 ADS1115_WE adc = ADS1115_WE(I2C_ADDRESS);
-AltSoftSerial altSerial;
+//AltSoftSerial altSerial;
 
 // Global variables
-int interruptPin = 3;
+int interruptPin = 18;
 volatile bool convReady = false;
 volatile bool debug = true;
+
+const int ledPin = 40;// LED_BUILTIN;
 
 // Interrupt routine that is called when a sample is ready and notifies that a sample is ready by setting
 // convReady flag to true
@@ -48,16 +54,19 @@ void convReadyAlert(){
 // Global serial printing
 void SerialPrint(String myString) {
   if(debug) {
-    altSerial.println(myString);
+   //altSerial.println(myString);
   }
 }
 
+
 void setup() {
   
-  if(debug) {
-    //Serial.begin(9600);
-    altSerial.begin(9600);
+   if(debug) {
+//    Serial.begin(9600);
+    //altSerial.begin(9600);
   }
+
+  //--------------------------------- initialize display
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     SerialPrint("display failed");
     for(;;);
@@ -67,6 +76,8 @@ void setup() {
   display.drawPixel(20, 20, WHITE);
   display.display();
 
+
+  //---------------------------------- Initialize ADS1115
   pinMode(interruptPin, INPUT_PULLUP);
   //SerialPrint("Defining interrupt pin with input pullup");
 
@@ -96,7 +107,12 @@ void setup() {
   adc.setCompareChannels(ADS1115_COMP_0_1); //comment line/change parameter to change channels
   //SerialPrint("Start with Channel 1");
 
-
+  // Initialize MODBUS
+    // start the Modbus RTU server, with (slave) id 1
+ // if (!ModbusRTUServer.begin(2, 9600)) {
+ //   SerialPrint("F Modbus0");
+  //  while (1);
+ // }
   
   SerialPrint("Setup is done");
 
@@ -135,7 +151,6 @@ void loop() {
 
   }
 }
-
 
 void WriteValueToScreen(int16_t ch1_value, int16_t ch2_value) {
       display.clearDisplay();
